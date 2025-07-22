@@ -1,0 +1,139 @@
+<section class="content">
+    <div class="content-block">
+        <div class="block-header">
+            <div class="breadcrumb-main">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="breadcrumb-title">
+                            <h2>{{'ARCHIVED_DOCUMENTS' | translate}}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="row margin-2">
+                            <div class="col-md-3">
+                                <label class="form-label">{{'SEARCH_DOCUMENT_BY_NAME_OR_DESCRIPTION' |
+                                    translate}}</label>
+                                <input class="form-control"
+                                    placeholder="{{'SEARCH_DOCUMENT_BY_NAME_OR_DESCRIPTION' | translate}}" type="text"
+                                    #input>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{'SEARCH_DOCUMENT_BY_META_TAGS' | translate}}</label>
+                                <input class="form-control" placeholder="{{'SEARCH_DOCUMENT_BY_META_TAGS' | translate}}"
+                                    #metatag>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{'SELECT_CATEGORY' | translate}}</label>
+                                <mat-select class="form-select" placeholder="{{'SELECT_CATEGORY' | translate}}"
+                                    (selectionChange)="onCategoryChange($event)">
+                                    <mat-option [value]="">-- {{'NONE' | translate}} --</mat-option>
+                                    <mat-option *ngFor="let category of allCategories" [value]="category.id">
+                                        <div class="country-item"
+                                            [ngStyle]="{'margin-left.px': category.deafLevel* 20}">
+                                            <div *ngIf="!category.parentId">
+                                                <b> {{category.name}}</b>
+                                            </div>
+                                            <div *ngIf="category.parentId">
+                                                {{category.name}}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{'STORAGE' | translate}}</label>
+                                <mat-select class="form-select" (selectionChange)="onStorageChange($event)"
+                                    placeholder="{{'STORAGE' | translate}}">
+                                    <mat-option [value]="">-- {{'NONE' | translate}} --</mat-option>
+                                    <mat-option [value]="'local'">{{'LOCAL' | translate}}</mat-option>
+                                    <mat-option [value]="'s3'">{{'S3' | translate}}</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="table-responsive">
+                                    <table mat-table [dataSource]="dataSource" class="w-100" matSort
+                                        matSortActive="deletedAt" matSortDirection="desc" matSortDisableClear>
+                                        <ng-container matColumnDef="action">
+                                            <th mat-header-cell *matHeaderCellDef>{{'ACTION' | translate}} </th>
+                                            <td mat-cell *matCellDef="let document">
+                                                <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Action"
+                                                    *hasClaim="['ARCHIVE_DOCUMENT_RESTORE_DOCUMENT','ARCHIVE_DOCUMENT_DELETE_DOCUMENTS']">
+                                                    <mat-icon>more_vert</mat-icon>
+                                                </button>
+                                                <mat-menu #menu="matMenu">
+                                                    <button *hasClaim="'ARCHIVE_DOCUMENT_RESTORE_DOCUMENT'"
+                                                        class="btn btn-light btn-sm" mat-menu-item type="button"
+                                                        (click)="restoreDocument(document.id)">
+                                                        <mat-icon>history</mat-icon>
+                                                        {{'RESTORE' | translate}}
+                                                    </button>
+                                                    <button *hasClaim="'ARCHIVE_DOCUMENT_DELETE_DOCUMENTS'"
+                                                        mat-menu-item class="btn btn-light btn-sm"
+                                                        (click)="deleteDocument(document.id)">
+                                                        <mat-icon>delete</mat-icon>
+                                                        {{'PERMANENTLY_DELETE' | translate}}
+                                                    </button>
+                                                </mat-menu>
+                                            </td>
+                                        </ng-container>
+                                        <ng-container matColumnDef="name">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'NAME' |
+                                                translate}} </th>
+                                            <td mat-cell *matCellDef="let document">
+                                                <a class="doc-link" (click)="onDocumentView(document)">{{document.name}}</a>
+                                            </td>
+                                        </ng-container>
+                                        <ng-container matColumnDef="categoryName">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'DOCUMENT_CATEGORY'
+                                                | translate}}</th>
+                                            <td mat-cell *matCellDef="let document"> {{document.categoryName}} </td>
+                                        </ng-container>
+                                        <ng-container matColumnDef="location">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'STORAGE' |
+                                                translate}}</th>
+                                            <td mat-cell *matCellDef="let document"> {{document.location.toUpperCase() |
+                                                translate}} </td>
+                                        </ng-container>
+                                        <ng-container matColumnDef="deletedAt">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'ARCHIVED_DATE' |
+                                                translate}} </th>
+                                            <td mat-cell *matCellDef="let document"> {{document?.deletedAt |
+                                                utcToLocalTime:'shortDate' }}
+                                            </td>
+                                        </ng-container>
+                                        <ng-container matColumnDef="deletedBy">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'ARCHIVED_BY' |
+                                                translate}} </th>
+                                            <td mat-cell *matCellDef="let document"> {{document.deletedByName}} </td>
+                                        </ng-container>
+                                        <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+                                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                                    </table>
+                                    <ng-container *ngIf="dataSource.count === 0">
+                                        <div class="col-sm-12 m-t-15">
+                                            <strong>{{'NO_DATA_FOUND' | translate}}</strong>
+                                        </div>
+                                    </ng-container>
+                                    <mat-paginator [length]="documentResource.totalCount"
+                                        [pageSize]="documentResource.pageSize"
+                                        [pageSizeOptions]="[10, 20, 30]"></mat-paginator>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="loading-shade" *ngIf="dataSource.loading$ | async">
+    <mat-spinner></mat-spinner>
+</div>

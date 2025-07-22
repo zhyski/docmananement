@@ -1,0 +1,174 @@
+<section class="content">
+    <div class="content-block">
+        <div class="block-header">
+            <div class="breadcrumb-main">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="breadcrumb-title">
+                            <h2>{{'COMPANY_PROFILE' | translate}}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+                    <mat-tab class="nav-tabs" *hasClaim="'SETTING_MANAGE_PROFILE'" label="{{'GENERAL' | translate}}">
+                        <div class="card tab-card">
+                            <div class="body">
+                                <div class="row">
+                                    <form [formGroup]="companyProfileForm">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="col-md-12">
+                                                    <label class="form-label">{{'TITLE' | translate}}</label>
+                                                    <input formControlName="title" class="form-control w-100"
+                                                        type="text">
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="col-md-8">
+                                                        <label for="">{{'LOGO' | translate}}</label>
+                                                        <mat-card class="cus-mat-card">
+                                                            <input hidden (change)="onFileSelect($event)" #fileInput
+                                                                name="logo" type="file" name="Profile Photo"
+                                                                fxFlex="30">
+                                                            <img *ngIf="imgSrc" class="full-width company-logo"
+                                                                [src]="imgSrc" />
+                                                            <img *ngIf="!imgSrc" class="full-width company-logo"
+                                                                src="assets/images/logo.png" />
+                                                            <mat-card-actions>
+                                                                <button type="button"
+                                                                    class="btn btn-success btn-sm mb-2"
+                                                                    (click)="fileInput.click()">
+                                                                    <i class="far fa-image"></i> {{'CHANGE_LOGO' |
+                                                                    translate}}</button>
+                                                            </mat-card-actions>
+                                                        </mat-card>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="">{{'BANNER_IMAGE' | translate}}</label>
+                                                <mat-card class="cus-mat-card">
+                                                    <input hidden (change)="onBannerChange($event)" #fileInput1
+                                                        name="logo" type="file" name="Profile Photo" fxFlex="30">
+                                                    <img *ngIf="bannerSrc" class="full-width company-logo"
+                                                        [src]="bannerSrc" />
+                                                    <img *ngIf="!bannerSrc" class="full-width company-logo"
+                                                        src="assets/images/login-image.png" />
+                                                    <mat-card-actions>
+                                                        <button type="button" class="btn btn-success btn-sm mb-2"
+                                                            (click)="fileInput1.click()">
+                                                            <i class="far fa-image"></i> {{'CHANGE_BANNER' |
+                                                            translate}}</button>
+                                                    </mat-card-actions>
+                                                </mat-card>
+                                            </div>
+                                            <div class="m-t-10 col-md-12">
+                                                <button type="submit" class="btn btn-success btn-sm m-r-10"
+                                                    cdkFocusInitial (click)="saveCompanyProfile()"><i
+                                                        class="fas fa-save"></i>
+                                                    {{'SAVE' | translate}}</button>
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    [routerLink]="['/dashboard']"><i class="fas fa-times-circle"></i>
+                                                    {{'CANCEL' | translate}}</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="{{'STORAGE' | translate}}" *hasClaim="'SETTINGS_STORAGE_SETTINGS'">
+                        <div class="card tab-card">
+                            <div class="body">
+                                <div class="row">
+                                    <form [formGroup]="localStorageForm">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="col-md-12">
+                                                    <label class="form-label">{{'DEFAULT_STORAGE' | translate}}</label>
+                                                    <ng-select formControlName="location" [clearable]="false">
+                                                        <ng-option [value]="'local'">{{'LOCAL' | translate}}</ng-option>
+                                                        <ng-option [value]="'s3'">{{'S3' | translate}}</ng-option>
+                                                    </ng-select>
+                                                </div>
+                                            </div>
+                                            <div class="row" *ngIf="localStorageForm.get('location').value === 's3'">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">{{'Amazon S3 key' | translate}}</label>
+                                                    <input formControlName="amazonS3key" class="form-control w-100"
+                                                        type="text">
+                                                    <div
+                                                        *ngIf="localStorageForm.get('amazonS3key').touched && localStorageForm.get('amazonS3key').errors">
+                                                        <div class="text-danger"
+                                                            *ngIf="localStorageForm.get('amazonS3key').errors?.['required']">
+                                                            {{'REQUIRED_FIELD' | translate}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">{{'Amazon S3 secret' | translate}}</label>
+                                                    <input formControlName="amazonS3secret" class="form-control w-100"
+                                                        type="text">
+                                                    <div
+                                                        *ngIf="localStorageForm.get('amazonS3secret').touched && localStorageForm.get('amazonS3secret').errors">
+                                                        <div class="text-danger"
+                                                            *ngIf="localStorageForm.get('amazonS3secret').errors?.['required']">
+                                                            {{'REQUIRED_FIELD' | translate}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label class="form-label">{{'Amazon S3 region' | translate}}</label>
+                                                    <input formControlName="amazonS3region" class="form-control w-100"
+                                                        type="text">
+                                                    <div
+                                                        *ngIf="localStorageForm.get('amazonS3region').touched && localStorageForm.get('amazonS3region').errors">
+                                                        <div class="text-danger"
+                                                            *ngIf="localStorageForm.get('amazonS3region').errors?.['required']">
+                                                            {{'REQUIRED_FIELD' | translate}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">{{'Amazon S3 bucket' | translate}}</label>
+                                                    <input formControlName="amazonS3bucket" class="form-control w-100"
+                                                        type="text">
+                                                    <div
+                                                        *ngIf="localStorageForm.get('amazonS3bucket').touched && localStorageForm.get('amazonS3bucket').errors">
+                                                        <div class="text-danger"
+                                                            *ngIf="localStorageForm.get('amazonS3bucket').errors?.['required']">
+                                                            {{'REQUIRED_FIELD' | translate}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="m-t-10 col-md-12">
+                                                <button type="button" class="btn btn-success btn-sm m-r-10"
+                                                    cdkFocusInitial (click)="saveLocalStorage()"><i
+                                                        class="fas fa-save"></i>
+                                                    {{'SAVE' | translate}}</button>
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    [routerLink]="['/dashboard']"><i class="fas fa-times-circle"></i>
+                                                    {{'CANCEL' | translate}}</button>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+<div class="loading-shade" *ngIf="isLoading">
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+</div>
